@@ -1,17 +1,19 @@
-const app = require('./app');
-const config = require('./config');
-const connectDatabase = require('./config/database');
-const logger = require('./utils/logger');
+import express from "express";
+import prisma from "./config/db.js";
 
-const start = async () => {
-  await connectDatabase();
+const app = express();
 
-  app.listen(config.port, () => {
-    logger.info(`Server running on port ${config.port} (${config.env})`);
-  });
-};
+app.use(express.json());
 
-start().catch((err) => {
-  logger.error('Failed to start server:', err);
-  process.exit(1);
+app.get("/", (req, res) => {
+  res.send("SmartQuiz API running");
+});
+
+app.get("/users", async (req, res) => {
+  const users = await prisma.user.findMany();
+  res.json(users);
+});
+
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
