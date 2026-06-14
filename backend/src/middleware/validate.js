@@ -1,4 +1,4 @@
-const ApiError = require('../utils/ApiError');
+import ApiError from '../utils/ApiError.js';
 
 const validate = (schema) => (req, _res, next) => {
   const { error, value } = schema.validate(req.body, { abortEarly: false, stripUnknown: true });
@@ -10,4 +10,4 @@ const validate = (schema) => (req, _res, next) => {
   next();
 };
 
-module.exports = validate;
+export default validate;

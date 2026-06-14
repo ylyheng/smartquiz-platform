@@ -1,19 +1,7 @@
-import express from "express";
-import prisma from "./config/db.js";
+import app from './app.js';
+import config from './config/index.js';
+import logger from './utils/logger.js';
 
-const app = express();
-
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("SmartQuiz API running");
-});
-
-app.get("/users", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+app.listen(config.port, () => {
+  logger.info(`Server running on port ${config.port} (${config.env})`);
 });

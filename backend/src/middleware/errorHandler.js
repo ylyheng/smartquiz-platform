@@ -1,5 +1,5 @@
-const ApiError = require('../utils/ApiError');
-const logger = require('../utils/logger');
+import ApiError from '../utils/ApiError.js';
+import logger from '../utils/logger.js';
 
 const errorHandler = (err, req, res, _next) => {
   let statusCode = err.statusCode || 500;
@@ -9,7 +9,11 @@ const errorHandler = (err, req, res, _next) => {
   if (!(err instanceof ApiError)) {
     logger.error('Unhandled error:', err);
     statusCode = 500;
-    message = 'Internal Server Error';
+    if (process.env.NODE_ENV === 'development') {
+      message = err.message;
+    } else {
+      message = 'Internal Server Error';
+    }
   }
 
   const response = { success: false, message };
@@ -19,4 +23,4 @@ const errorHandler = (err, req, res, _next) => {
   res.status(statusCode).json(response);
 };
 
-module.exports = errorHandler;
+export default errorHandler;
