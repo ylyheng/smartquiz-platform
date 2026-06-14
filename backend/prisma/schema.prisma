@@ -15,4 +15,88 @@ model User {
   role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  quizzes  Quiz[]
+  attempts Attempt[]
+}
+
+model QuestionBank {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  questions Question[]
+}
+
+model Question {
+  id            Int      @id @default(autoincrement())
+  bankId        Int
+  type          String
+  questionText  String
+  options       String?
+  correctAnswer String
+  explanation   String?
+  points        Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bank           QuestionBank     @relation(fields: [bankId], references: [id])
+  quizQuestions  QuizQuestion[]
+  attemptAnswers AttemptAnswer[]
+}
+
+model Quiz {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  lecturerId  Int
+  timeLimit   Int
+  shuffle     Boolean  @default(false)
+  showResults Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lecturer     User           @relation(fields: [lecturerId], references: [id])
+  quizQuestions QuizQuestion[]
+  attempts     Attempt[]
+}
+
+model QuizQuestion {
+  id         Int @id @default(autoincrement())
+  quizId     Int
+  questionId Int
+  order      Int
+
+  quiz     Quiz     @relation(fields: [quizId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+model Attempt {
+  id          Int      @id @default(autoincrement())
+  quizId      Int
+  studentId   Int
+  score       Int?
+  totalPoints Int?
+  startedAt   DateTime @default(now())
+  submittedAt DateTime?
+  status      String   @default("in-progress")
+
+  quiz    Quiz            @relation(fields: [quizId], references: [id])
+  student User            @relation(fields: [studentId], references: [id])
+  answers AttemptAnswer[]
+}
+
+model AttemptAnswer {
+  id         Int  @id @default(autoincrement())
+  attemptId  Int
+  questionId Int
+  answer     String?
+  isCorrect  Boolean?
+  score      Int?
+  feedback   String?
+
+  attempt  Attempt  @relation(fields: [attemptId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
 }

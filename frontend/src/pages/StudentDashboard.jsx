@@ -1,86 +1,111 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const [quizzes, setQuizzes] = useState([]);
+  const [attempts, setAttempts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [q, a] = await Promise.all([
+          api.get('/quizzes'),
+          api.get('/attempts/mine'),
+        ]);
+        setQuizzes(q.data.quizzes);
+        setAttempts(a.data.attempts);
+      } catch (e) { /* ignore */ }
+      finally { setLoading(false) }
+    })();
+  }, []);
+
+  const completed = attempts.filter(a => a.status !== 'in-progress');
+  const avgPct = completed.reduce((sum, a) => sum + (a.totalPoints ? (a.score / a.totalPoints) * 100 : 0), 0);
+  const avg = completed.length ? Math.round(avgPct / completed.length) : 0;
 
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Welcome, {user.name}</h1>
-        <span className="role-badge student">Student</span>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📚</div>
-          <div className="stat-info">
-            <h3>Available Quizzes</h3>
-            <p className="stat-value">0</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">✅</div>
-          <div className="stat-info">
-            <h3>Completed</h3>
-            <p className="stat-value">0</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">📊</div>
-          <div className="stat-info">
-            <h3>Average Grade</h3>
-            <p className="stat-value">--</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">🏆</div>
-          <div className="stat-info">
-            <h3>Best Score</h3>
-            <p className="stat-value">--</p>
-          </div>
+        <div>
+          <h1>Welcome, {user.name}</h1>
+          <p className="dashboard-sub">Student Dashboard</p>
         </div>
       </div>
 
-      <div className="dashboard-section">
-        <h2>Performance Overview</h2>
-        <div className="chart-placeholder">
-          <div className="chart-bars">
-            <div className="bar" style={{ height: '75%' }}><span>Quiz 1</span></div>
-            <div className="bar" style={{ height: '60%' }}><span>Quiz 2</span></div>
-            <div className="bar" style={{ height: '85%' }}><span>Quiz 3</span></div>
-            <div className="bar" style={{ height: '50%' }}><span>Quiz 4</span></div>
-            <div className="bar" style={{ height: '70%' }}><span>Quiz 5</span></div>
+      {!loading && (
+        <div className="stats-grid stats-grid-3">
+          <div className="stat-card">
+            <div className="stat-icon purple">📋</div>
+            <div className="stat-info">
+              <h3>Available Quizzes</h3>
+              <p className="stat-value">{quizzes.length}</p>
+            </div>
           </div>
-          <p className="chart-label">Recent Quiz Scores (%)</p>
+          <div className="stat-card">
+            <div className="stat-icon green">✅</div>
+            <div className="stat-info">
+              <h3>Completed</h3>
+              <p className="stat-value">{completed.length}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon amber">📈</div>
+            <div className="stat-info">
+              <h3>Average Score</h3>
+              <p className="stat-value">{completed.length ? `${avg}%` : '-'}</p>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="dashboard-section">
-        <h2>Quick Actions</h2>
-        <div className="actions-grid">
-          <button className="action-card" onClick={() => {}}>
-            <span className="action-icon">📝</span>
-            <span>Browse Quizzes</span>
-          </button>
-          <button className="action-card" onClick={() => {}}>
-            <span className="action-icon">📋</span>
-            <span>My Submissions</span>
-          </button>
-          <button className="action-card" onClick={() => {}}>
-            <span className="action-icon">📊</span>
-            <span>View Grades</span>
-          </button>
-          <button className="action-card" onClick={() => {}}>
-            <span className="action-icon">⏳</span>
-            <span>Pending Quizzes</span>
-          </button>
+      <div className="dashboard-content">
+        <div>
+          <div className="dashboard-section">
+            <h2>Available Quizzes</h2>
+            {loading ? <div className="loading-screen" style={{ minHeight: 100 }}>Loading...</div> :
+              quizzes.length === 0 ? <div className="empty-state">No quizzes available right now.</div> :
+              quizzes.map(q => (
+                <div key={q.id} className="quiz-card">
+                  <div>
+                    <h3>{q.title}</h3>
+                    <div className="quiz-meta">
+                      <span>📄 {q._count.quizQuestions} questions</span>
+                      <span>🕐 {q.timeLimit} mins</span>
+                    </div>
+                  </div>
+                  <Link to={`/take-quiz/${q.id}`} className="start-btn">Start Quiz</Link>
+                </div>
+              ))
+            }
+          </div>
         </div>
-      </div>
 
-      <div className="dashboard-section">
-        <h2>Recent Submissions</h2>
-        <div className="activity-placeholder">
-          <p>No submissions yet. Start a quiz to see your results here.</p>
+        <div>
+          <div className="dashboard-section">
+            <h2>Recent Results</h2>
+            {loading ? <div className="loading-screen" style={{ minHeight: 100 }}>Loading...</div> :
+              completed.length === 0 ? <div className="empty-state">No submissions yet.</div> :
+              <div className="results-stack">
+                {completed.slice(0, 5).map(a => {
+                  const pct = a.totalPoints ? Math.round((a.score / a.totalPoints) * 100) : 0;
+                  return (
+                    <Link to={`/results/${a.id}`} key={a.id} className="result-item">
+                      <div>
+                        <div className="result-title">{a.quiz.title}</div>
+                        <div className="result-date">{new Date(a.submittedAt).toLocaleDateString()}</div>
+                      </div>
+                      <div className={`result-score ${pct >= 50 ? 'pass' : 'fail'}`}>{pct}%</div>
+                    </Link>
+                  );
+                })}
+                {completed.length > 5 && <Link to="/attempts/mine" className="view-all-link">View All Records</Link>}
+              </div>
+            }
+          </div>
         </div>
       </div>
     </div>
