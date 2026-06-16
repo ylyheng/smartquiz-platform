@@ -18,6 +18,11 @@ function Navbar() {
   return (
     <nav>
       <NavLink to="/" className="nav-logo">SmartQuiz</NavLink>
+      <div className="header-links footer-links">
+        <span>About</span>
+        <span>Privacy</span>
+        <span>Contact</span>
+      </div>
       {user && (
         <div className="nav-links">
           <NavLink to="/dashboard">Dashboard</NavLink>
@@ -56,11 +61,6 @@ function Layout() {
       </main>
       <footer className="site-footer">
         <span>&copy; 2026 SmartQuiz Platform</span>
-        <div className="footer-links">
-          <span>About</span>
-          <span>Privacy</span>
-          <span>Contact</span>
-        </div>
       </footer>
     </>
   );

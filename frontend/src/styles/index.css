@@ -36,6 +36,23 @@ nav {
   gap: 1.5rem;
 }
 
+.header-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.header-links span {
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.header-links span:hover {
+  color: #3730a3;
+}
+
 nav a {
   color: #6b7280;
   text-decoration: none;
@@ -320,7 +337,7 @@ main {
 
 /* Question list */
 .question-list { display: flex; flex-direction: column; gap: 1rem; }
-.question-card { }
+/* .question-card { } */
 .q-header { display: flex; gap: 8px; margin-bottom: 8px; }
 .q-text { font-size: 0.95rem; color: #111; margin-bottom: 8px; }
 .q-options { background: #f9fafb; padding: 10px; border-radius: 6px; font-size: 0.85rem; white-space: pre-wrap; margin-bottom: 8px; }
