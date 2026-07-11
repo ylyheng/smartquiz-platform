@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get('role') || 'student';
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -58,7 +60,7 @@ export default function Login() {
           </button>
         </form>
         <p className="auth-footer">
-          Don&apos;t have an account? <Link to="/register">Register</Link>
+          Don&apos;t have an account? <Link to={`/register?role=${role}`}>Register</Link>
         </p>
       </div>
     </div>

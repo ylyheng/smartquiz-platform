@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
 import { Outlet } from 'react-router-dom';
@@ -12,61 +12,95 @@ import QuizCreatePage from './pages/QuizCreatePage';
 import TakeQuizPage from './pages/TakeQuizPage';
 import QuizResultsPage from './pages/QuizResultsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function Navbar() {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   return (
-    <nav>
-      <NavLink to="/" className="nav-logo">SmartQuiz</NavLink>
-      {user && (
-        <div className="nav-links">
-          <NavLink to="/dashboard">Dashboard</NavLink>
-          {user.role === 'lecturer' && (
+    <header className="site-header">
+      <div className="site-header__inner">
+        <NavLink to="/" className="site-header__logo">SmartQuiz</NavLink>
+
+        <nav className="site-header__nav">
+          {user ? (
+            /* ── Authenticated nav ── */
             <>
-              <NavLink to="/banks">Question Banks</NavLink>
-              <NavLink to="/quizzes">Quizzes</NavLink>
-              <NavLink to="/analytics">Analytics</NavLink>
+              <NavLink to="/dashboard" className={({ isActive }) => 'site-nav__link' + (isActive ? ' site-nav__link--active' : '')}>
+                Dashboard
+              </NavLink>
+              {user.role === 'lecturer' && (
+                <>
+                  <NavLink to="/banks" className={({ isActive }) => 'site-nav__link' + (isActive ? ' site-nav__link--active' : '')}>
+                    Question Banks
+                  </NavLink>
+                  <NavLink to="/quizzes" className={({ isActive }) => 'site-nav__link' + (isActive ? ' site-nav__link--active' : '')}>
+                    Quizzes
+                  </NavLink>
+                  <NavLink to="/analytics" className={({ isActive }) => 'site-nav__link' + (isActive ? ' site-nav__link--active' : '')}>
+                    Analytics
+                  </NavLink>
+                </>
+              )}
+              <div className="site-header__avatar">{user.name.charAt(0).toUpperCase()}</div>
+              <button className="site-header__logout" onClick={logout}>Logout</button>
+            </>
+          ) : (
+            /* ── Public nav (matches design) ── */
+            <>
+              <NavLink to="/" end className={({ isActive }) => 'site-nav__link' + (isActive ? ' site-nav__link--active' : '')}>
+                Home
+              </NavLink>
+              <span className="site-nav__link">Features</span>
+              <span className="site-nav__link">Enterprise</span>
+              <button className="site-header__help" aria-label="Help">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </button>
             </>
           )}
-        </div>
-      )}
-      <div className="nav-right">
-        {user ? (
-          <>
-            <div className="nav-avatar">{user.name.charAt(0).toUpperCase()}</div>
-            <button className="nav-logout" onClick={logout}>Logout</button>
-          </>
-        ) : (
-          <>
-            <NavLink to="/login">Login</NavLink>
-            <NavLink to="/register">Register</NavLink>
-          </>
-        )}
+        </nav>
       </div>
-    </nav>
+    </header>
+  );
+}
+
+function Footer() {
+  const location = useLocation();
+  if (location.pathname !== '/') return null;
+  return (
+    <footer className="site-footer">
+      <span className="site-footer__brand">SmartQuiz &nbsp;
+        <span className="site-footer__copy">© 2026 SmartQuiz Systems Inc.</span>
+      </span>
+      <div className="site-footer__links">
+        <span>Privacy Policy</span>
+        <span>Terms of Service</span>
+        <span>Support</span>
+      </div>
+    </footer>
   );
 }
 
 function Layout() {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   return (
     <>
       <Navbar />
-      <main>
+      <main className={isHome ? 'main--home' : 'main--inner'}>
         <Outlet />
       </main>
-      <footer className="site-footer">
-        <span>&copy; 2026 SmartQuiz Platform</span>
-        <div className="footer-links">
-          <span>About</span>
-          <span>Privacy</span>
-          <span>Contact</span>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
-
-import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (

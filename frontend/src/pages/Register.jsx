@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'student' });
+  const [searchParams] = useSearchParams();
+  const initialRole = searchParams.get('role') === 'lecturer' ? 'lecturer' : 'student';
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: initialRole });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
