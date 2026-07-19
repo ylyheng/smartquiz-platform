@@ -382,7 +382,7 @@ export default function LecturerDashboard() {
         };
       } else {
         payload = {
-          type: 'short-answer',
+          type: 'true-false',
           questionText: questionForm.questionText,
           options: null,
           correctAnswer: questionForm.correctAnswer,
@@ -945,7 +945,7 @@ export default function LecturerDashboard() {
                                     </td>
                                     <td className="text-center">
                                       <span className={`qbl-type-badge qbl-type-badge--${q.type}`}>
-                                        {q.type === 'mcq' ? 'MCQ' : 'Short Answer'}
+                                        {q.type === 'mcq' ? 'MCQ' : 'True/False'}
                                       </span>
                                     </td>
                                     <td className="text-center font-bold text-slate">{q.points} pt{q.points > 1 ? 's' : ''}</td>
@@ -1011,11 +1011,11 @@ export default function LecturerDashboard() {
                                 </button>
                                 <button
                                   type="button"
-                                  className={`cq-type-btn${questionForm.type === 'short-answer' ? ' is-active' : ''}`}
-                                  onClick={() => setQuestionField('type', 'short-answer')}
+                                  className={`cq-type-btn${questionForm.type === 'true-false' ? ' is-active' : ''}`}
+                                  onClick={() => setQuestionField('type', 'true-false')}
                                 >
-                                  <span className="cq-type-btn__lines">≡</span>
-                                  <span className="cq-type-btn__text">Short Answer</span>
+                                  <span className="cq-type-btn__lines">T/F</span>
+                                  <span className="cq-type-btn__text">True or False</span>
                                 </button>
                               </div>
                             </div>
@@ -1114,19 +1114,31 @@ export default function LecturerDashboard() {
                               </>
                             ) : (
                               <div className="cq-field">
-                                <label className="cq-label">Model Answer</label>
-                                <input
-                                  className="cq-input"
-                                  value={questionForm.correctAnswer}
-                                  onChange={e => setQuestionField('correctAnswer', e.target.value)}
-                                  placeholder="Type the expected correct answer..."
-                                />
+                                <label className="cq-label">Correct Answer</label>
+                                <div className="cq-options-list">
+                                  <div className="cq-option">
+                                    <button
+                                      type="button"
+                                      className={`cq-option__radio${questionForm.correctAnswer === 'True' ? ' is-selected' : ''}`}
+                                      onClick={() => setQuestionField('correctAnswer', 'True')}
+                                    />
+                                    <span className="cq-option__text">True</span>
+                                  </div>
+                                  <div className="cq-option">
+                                    <button
+                                      type="button"
+                                      className={`cq-option__radio${questionForm.correctAnswer === 'False' ? ' is-selected' : ''}`}
+                                      onClick={() => setQuestionField('correctAnswer', 'False')}
+                                    />
+                                    <span className="cq-option__text">False</span>
+                                  </div>
+                                </div>
                                 <label className="cq-label" style={{ marginTop: '1rem' }}>Explanation (optional)</label>
                                 <textarea
                                   className="cq-input"
                                   value={questionForm.explanation}
                                   onChange={e => setQuestionField('explanation', e.target.value)}
-                                  placeholder="Why is this correct?"
+                                  placeholder="Why is this the correct answer?"
                                   rows={3}
                                 />
                               </div>

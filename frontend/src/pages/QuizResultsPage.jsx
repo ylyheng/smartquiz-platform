@@ -66,8 +66,8 @@ export default function QuizResultsPage() {
             </div>
           )}
 
-          {aa.question.type === 'short-answer' && (
-            <div className="sa-result">
+          {aa.question.type === 'true-false' && (
+            <div className="tf-result">
               <p><strong>Your answer:</strong> {aa.answer || '(no answer)'}</p>
               <p><strong>Correct answer:</strong> {aa.question.correctAnswer}</p>
             </div>

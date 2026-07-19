@@ -1350,7 +1350,7 @@ main.main--dashboard {
   border-radius: 4px;
 }
 
-.badge-short-answer {
+.badge-true-false {
   background-color: #eef2ff;
   color: #4f46e5;
 }
@@ -1922,6 +1922,20 @@ main.main--dashboard {
 }
 .sa-input:focus { border-color: #3730a3; }
 
+.tf-options {
+  display: flex; gap: 1rem; margin-top: 0.5rem;
+}
+.tf-option {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 1.5rem; border: 2px solid #d1d5db; border-radius: 8px;
+  cursor: pointer; transition: all 0.2s; font-weight: 500; font-size: 0.95rem;
+}
+.tf-option:hover { border-color: #6366f1; background: #eef2ff; }
+.tf-option input[type="radio"] { display: none; }
+.tf-option.is-selected {
+  border-color: #4f46e5; background: #eef2ff; color: #4338ca;
+}
+
 .quiz-submit-bar {
   display: flex; justify-content: space-between; align-items: center;
   padding: 1rem 0; border-top: 1px solid #e5e7eb; margin-top: 1rem;
@@ -1955,6 +1969,9 @@ main.main--dashboard {
 
 .sa-result { font-size: 0.9rem; color: #374151; }
 .sa-result p { margin-bottom: 4px; }
+
+.tf-result { font-size: 0.9rem; color: #374151; }
+.tf-result p { margin-bottom: 4px; }
 
 .results-nav { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; }
 
@@ -4950,7 +4967,7 @@ button.student-nav__item {
   color: #4338ca;
 }
 
-.qbl-type-badge--short-answer {
+.qbl-type-badge--true-false {
   background: #f3e8ff;
   color: #6b21a8;
 }

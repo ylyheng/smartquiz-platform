@@ -120,14 +120,21 @@ export default function TakeQuizPage() {
               </div>
             )}
 
-            {aa.question.type === 'short-answer' && (
-              <textarea
-                className="sa-input"
-                value={answers[aa.questionId] || ''}
-                onChange={e => handleAnswerChange(aa.questionId, e.target.value)}
-                placeholder="Type your answer..."
-                rows={3}
-              />
+            {aa.question.type === 'true-false' && (
+              <div className="tf-options">
+                {['True', 'False'].map(val => (
+                  <label key={val} className={`tf-option${answers[aa.questionId] === val ? ' is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name={`q_${aa.questionId}`}
+                      value={val}
+                      checked={answers[aa.questionId] === val}
+                      onChange={() => handleAnswerChange(aa.questionId, val)}
+                    />
+                    <span>{val}</span>
+                  </label>
+                ))}
+              </div>
             )}
           </div>
         ))}

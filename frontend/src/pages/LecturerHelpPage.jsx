@@ -9,7 +9,7 @@ const FAQS = [
   },
   {
     q: 'How do I add questions to a question bank?',
-    a: 'Go to "Question Bank" in the sidebar, open or create a bank, then click "Add Question". You can add multiple-choice (MCQ) or short-answer questions with correct answers and explanations.'
+    a: 'Go to "Question Bank" in the sidebar, open or create a bank, then click "Add Question". You can add multiple-choice (MCQ) or true/false questions with correct answers and explanations.'
   },
   {
     q: 'Can I see which students completed a quiz?',

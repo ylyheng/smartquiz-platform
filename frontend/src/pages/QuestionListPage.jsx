@@ -140,7 +140,7 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
       };
     }
     return {
-      type: 'short-answer',
+      type: 'true-false',
       questionText: form.questionText,
       options: null,
       correctAnswer: form.correctAnswer,
@@ -214,11 +214,11 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
                 </button>
                 <button
                   type="button"
-                  className={`cq-type-btn${form.type === 'short-answer' ? ' is-active' : ''}`}
-                  onClick={() => setField('type', 'short-answer')}
+                  className={`cq-type-btn${form.type === 'true-false' ? ' is-active' : ''}`}
+                  onClick={() => setField('type', 'true-false')}
                 >
-                  <span className="cq-type-btn__lines">≡</span>
-                  <span className="cq-type-btn__text">Short Answer</span>
+                  <span className="cq-type-btn__lines">T/F</span>
+                  <span className="cq-type-btn__text">True or False</span>
                 </button>
               </div>
             </div>
@@ -321,13 +321,25 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
               </>
             ) : (
               <div className="cq-field">
-                <label className="cq-label">Model Answer</label>
-                <input
-                  className="cq-input"
-                  value={form.correctAnswer}
-                  onChange={e => setField('correctAnswer', e.target.value)}
-                  placeholder="Type the expected correct answer..."
-                />
+                <label className="cq-label">Correct Answer</label>
+                <div className="cq-options-list">
+                  <div className="cq-option">
+                    <button
+                      type="button"
+                      className={`cq-option__radio${form.correctAnswer === 'True' ? ' is-selected' : ''}`}
+                      onClick={() => setField('correctAnswer', 'True')}
+                    />
+                    <span className="cq-option__text">True</span>
+                  </div>
+                  <div className="cq-option">
+                    <button
+                      type="button"
+                      className={`cq-option__radio${form.correctAnswer === 'False' ? ' is-selected' : ''}`}
+                      onClick={() => setField('correctAnswer', 'False')}
+                    />
+                    <span className="cq-option__text">False</span>
+                  </div>
+                </div>
                 <label className="cq-label" style={{ marginTop: '1rem' }}>Explanation (optional)</label>
                 <textarea
                   className="cq-input"
@@ -635,7 +647,7 @@ export default function QuestionListPage() {
               >
                 <option value="all">All Types</option>
                 <option value="mcq">Multiple Choice</option>
-                <option value="short-answer">Short Answer</option>
+                <option value="true-false">True or False</option>
               </select>
               <ChevronDown size={14} className="qbl-select-icon" />
             </div>
@@ -681,7 +693,7 @@ export default function QuestionListPage() {
                       </td>
                       <td className="text-center">
                         <span className={`qbl-type-badge qbl-type-badge--${q.type}`}>
-                          {q.type === 'mcq' ? 'MCQ' : 'Short Answer'}
+                          {q.type === 'mcq' ? 'MCQ' : 'True/False'}
                         </span>
                       </td>
                       <td className="text-center font-bold text-slate">{q.points} pt{q.points > 1 ? 's' : ''}</td>
