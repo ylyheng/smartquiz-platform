@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import QuestionBankPage from './pages/QuestionBankPage';
 import QuestionListPage from './pages/QuestionListPage';
 import QuizCreatePage from './pages/QuizCreatePage';
+import QuizListPage from './pages/QuizListPage';
 import TakeQuizPage from './pages/TakeQuizPage';
 import QuizResultsPage from './pages/QuizResultsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -90,14 +91,23 @@ function Footer() {
 
 function Layout() {
   const location = useLocation();
+  const { user } = useAuth();
   const isHome = location.pathname === '/';
+  const isLecturerWorkspace = user?.role === 'lecturer' && (
+    location.pathname === '/dashboard' ||
+    location.pathname === '/banks' ||
+    location.pathname === '/quizzes' ||
+    location.pathname === '/quizzes/create' ||
+    location.pathname === '/analytics' ||
+    location.pathname.startsWith('/analytics/quiz/')
+  );
   return (
     <>
-      <Navbar />
-      <main className={isHome ? 'main--home' : 'main--inner'}>
+      {!isLecturerWorkspace && <Navbar />}
+      <main className={isHome ? 'main--home' : isLecturerWorkspace ? 'main--dashboard' : 'main--inner'}>
         <Outlet />
       </main>
-      <Footer />
+      {!isLecturerWorkspace && <Footer />}
     </>
   );
 }
@@ -114,7 +124,7 @@ export default function App() {
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/banks" element={<ProtectedRoute roles={['lecturer']}><QuestionBankPage /></ProtectedRoute>} />
             <Route path="/banks/:bankId" element={<ProtectedRoute roles={['lecturer']}><QuestionListPage /></ProtectedRoute>} />
-            <Route path="/quizzes" element={<ProtectedRoute><div>Quiz list coming soon</div></ProtectedRoute>} />
+            <Route path="/quizzes" element={<ProtectedRoute><QuizListPage /></ProtectedRoute>} />
             <Route path="/quizzes/create" element={<ProtectedRoute roles={['lecturer']}><QuizCreatePage /></ProtectedRoute>} />
             <Route path="/take-quiz/:quizId" element={<ProtectedRoute roles={['student']}><TakeQuizPage /></ProtectedRoute>} />
             <Route path="/results/:attemptId" element={<ProtectedRoute><QuizResultsPage /></ProtectedRoute>} />

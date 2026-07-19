@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import LecturerShell from '../components/layout/LecturerShell';
 import api from '../services/api';
 
 export default function QuizCreatePage() {
@@ -58,6 +59,7 @@ export default function QuizCreatePage() {
   if (loading) return <div className="loading-screen">Loading...</div>;
 
   return (
+    <LecturerShell>
     <div className="page-container">
       <div className="page-header">
         <h1>Create Quiz</h1>
@@ -113,5 +115,6 @@ export default function QuizCreatePage() {
         </button>
       </form>
     </div>
+    </LecturerShell>
   );
 }

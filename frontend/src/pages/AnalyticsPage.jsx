@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import LecturerShell from '../components/layout/LecturerShell';
 import api from '../services/api';
 
 export default function AnalyticsPage() {
@@ -38,6 +39,7 @@ export default function AnalyticsPage() {
 
   if (quizId) {
     return (
+      <LecturerShell>
       <div className="page-container">
         <div className="page-header">
           <div>
@@ -98,10 +100,12 @@ export default function AnalyticsPage() {
           </div>
         )}
       </div>
+      </LecturerShell>
     );
   }
 
   return (
+    <LecturerShell>
     <div className="page-container">
       <div className="page-header">
         <h1>Analytics Dashboard</h1>
@@ -167,5 +171,6 @@ export default function AnalyticsPage() {
         </div>
       )}
     </div>
+    </LecturerShell>
   );
 }
