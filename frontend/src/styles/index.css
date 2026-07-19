@@ -3851,9 +3851,53 @@ button.student-nav__item {
   text-align: center;
 }
 .cq-media-zone:hover { border-color: #c7d2fe; background: #f8faff; }
+.cq-media-zone.is-dragover { border-color: #4f46e5; background: #eef2ff; }
+.cq-media-zone__input { display: none; }
 .cq-media-zone__icon { color: #94a3b8; }
 .cq-media-zone__title { font-size: 0.9rem; font-weight: 600; color: #475569; }
 .cq-media-zone__sub { font-size: 0.78rem; color: #94a3b8; }
+
+.cq-media-preview {
+  margin-top: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+.cq-media-preview__img {
+  display: block;
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+.cq-media-preview__remove {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 8px;
+  background: #fef2f2;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.cq-media-preview__remove:hover { background: #fee2e2; }
+
+.cq-preview__media { margin-bottom: 1rem; }
+.cq-preview__media img {
+  display: block;
+  max-width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
 
 .cq-options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1rem; }
 

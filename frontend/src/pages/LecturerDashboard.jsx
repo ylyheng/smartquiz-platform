@@ -93,6 +93,7 @@ export default function LecturerDashboard() {
     options: [emptyOption('A'), emptyOption('B'), emptyOption('C'), emptyOption('D')],
     correctAnswer: 'A',
     explanation: '',
+    mediaUrl: '',
     points: 1,
     subject: 'Computer Science',
     difficulty: 'Medium',
@@ -101,6 +102,7 @@ export default function LecturerDashboard() {
   });
   const [questionSaving, setQuestionSaving] = useState(false);
   const [showQuestionPreview, setShowQuestionPreview] = useState(false);
+  const [mediaUploading, setMediaUploading] = useState(false);
 
   /* ────────────────────────────────────────────────────────
      CREATE QUIZ STATE
@@ -323,6 +325,7 @@ export default function LecturerDashboard() {
       options: [emptyOption('A'), emptyOption('B'), emptyOption('C'), emptyOption('D')],
       correctAnswer: 'A',
       explanation: '',
+      mediaUrl: '',
       points: 1,
       subject: 'Computer Science',
       difficulty: 'Medium',
@@ -347,6 +350,7 @@ export default function LecturerDashboard() {
       options: parsedOptions.length > 0 ? parsedOptions : [emptyOption('A'), emptyOption('B')],
       correctAnswer: q.correctAnswer,
       explanation: q.explanation || '',
+      mediaUrl: q.mediaUrl || '',
       points: q.points,
       subject: 'Computer Science',
       difficulty: q.points <= 2 ? 'Easy' : q.points <= 5 ? 'Medium' : 'Hard',
@@ -373,6 +377,7 @@ export default function LecturerDashboard() {
           options: optionsStr,
           correctAnswer: questionForm.correctAnswer,
           explanation: questionForm.explanation,
+          mediaUrl: questionForm.mediaUrl || null,
           points: parseInt(questionForm.points) || 1,
         };
       } else {
@@ -382,6 +387,7 @@ export default function LecturerDashboard() {
           options: null,
           correctAnswer: questionForm.correctAnswer,
           explanation: questionForm.explanation,
+          mediaUrl: questionForm.mediaUrl || null,
           points: parseInt(questionForm.points) || 1,
         };
       }
@@ -450,7 +456,41 @@ export default function LecturerDashboard() {
     }
   };
 
-  const removeQuestionTag = (t) => setQuestionField('tags', questionForm.tags.filter(x => x !== t));
+  const removeQuestionTag = (t) => setQuestionForm(f => ({ ...f, tags: f.tags.filter(x => x !== t) }));
+
+  const uploadMedia = async (file) => {
+    if (!file) return;
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Only image files (jpg, png, gif, webp) are allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB.');
+      return;
+    }
+    setMediaUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setQuestionField('mediaUrl', data.data.url);
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+    } catch (e) {
+      alert('Upload failed: ' + e.message);
+    } finally {
+      setMediaUploading(false);
+    }
+  };
 
   /* ────────────────────────────────────────────────────────
      QUIZ BUILDER OPERATIONS
@@ -1001,11 +1041,39 @@ export default function LecturerDashboard() {
                               </div>
                             </div>
 
-                            <div className="cq-media-zone">
-                              <ImagePlay size={28} className="cq-media-zone__icon" />
-                              <div className="cq-media-zone__title">Add Media or Equations</div>
-                              <div className="cq-media-zone__sub">Drag and drop images, PDFs, or insert LaTeX equations</div>
-                            </div>
+                            {questionForm.mediaUrl ? (
+                              <div className="cq-media-preview">
+                                <img src={questionForm.mediaUrl} alt="Question media" className="cq-media-preview__img" />
+                                <button
+                                  type="button"
+                                  className="cq-media-preview__remove"
+                                  onClick={() => setQuestionField('mediaUrl', '')}
+                                >
+                                  <X size={14} /> Remove Image
+                                </button>
+                              </div>
+                            ) : (
+                              <label
+                                className="cq-media-zone"
+                                onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('is-dragover'); }}
+                                onDragLeave={e => e.currentTarget.classList.remove('is-dragover')}
+                                onDrop={e => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove('is-dragover');
+                                  if (e.dataTransfer.files.length > 0) uploadMedia(e.dataTransfer.files[0]);
+                                }}
+                              >
+                                <input
+                                  type="file"
+                                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                  className="cq-media-zone__input"
+                                  onChange={e => { if (e.target.files.length > 0) uploadMedia(e.target.files[0]); }}
+                                />
+                                <ImagePlay size={28} className="cq-media-zone__icon" />
+                                <div className="cq-media-zone__title">{mediaUploading ? 'Uploading...' : 'Add Image'}</div>
+                                <div className="cq-media-zone__sub">Drag and drop or click to browse (jpg, png, gif, webp — max 5MB)</div>
+                              </label>
+                            )}
                           </div>
 
                           <div className="cq-card">
@@ -1069,6 +1137,11 @@ export default function LecturerDashboard() {
                             <div className="cq-card cq-preview">
                               <div className="cq-card__title">Preview</div>
                               <div className="cq-preview__stem">{questionForm.questionText || <em>No prompt entered.</em>}</div>
+                              {questionForm.mediaUrl && (
+                                <div className="cq-preview__media">
+                                  <img src={questionForm.mediaUrl} alt="Question media" />
+                                </div>
+                              )}
                               {questionForm.type === 'mcq' && (
                                 <div className="cq-preview__options">
                                   {questionForm.options.map((opt, i) => (

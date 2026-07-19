@@ -6,6 +6,7 @@ import questionRoutes from './questionRoutes.js';
 import quizRoutes from './quizRoutes.js';
 import attemptRoutes from './attemptRoutes.js';
 import analyticsRoutes from './analyticsRoutes.js';
+import uploadRoutes from './uploadRoutes.js';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/banks/:bankId/questions', questionRoutes);
 router.use('/quizzes', quizRoutes);
 router.use('/attempts', attemptRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/upload', uploadRoutes);
 
 export default router;

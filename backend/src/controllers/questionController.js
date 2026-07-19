@@ -14,13 +14,13 @@ export const listByBank = async (req, res, next) => {
 export const create = async (req, res, next) => {
   try {
     const bankId = parseInt(req.params.bankId);
-    const { type, questionText, options, correctAnswer, explanation, points } = req.body;
+    const { type, questionText, options, correctAnswer, explanation, mediaUrl, points } = req.body;
 
     const bank = await prisma.questionBank.findUnique({ where: { id: bankId } });
     if (!bank) return next(new ApiError(404, 'Question bank not found'));
 
     const question = await prisma.question.create({
-      data: { bankId, type, questionText, options, correctAnswer, explanation, points: points || 1 },
+      data: { bankId, type, questionText, options, correctAnswer, explanation, mediaUrl: mediaUrl || null, points: points || 1 },
     });
     res.status(201).json({ success: true, data: { question } });
   } catch (err) { next(err); }
@@ -28,10 +28,10 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   try {
-    const { type, questionText, options, correctAnswer, explanation, points } = req.body;
+    const { type, questionText, options, correctAnswer, explanation, mediaUrl, points } = req.body;
     const question = await prisma.question.update({
       where: { id: parseInt(req.params.id) },
-      data: { type, questionText, options, correctAnswer, explanation, points },
+      data: { type, questionText, options, correctAnswer, explanation, mediaUrl: mediaUrl || null, points },
     });
     res.json({ success: true, data: { question } });
   } catch (err) { next(err); }

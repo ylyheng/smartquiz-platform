@@ -40,6 +40,7 @@ function defaultForm() {
     options: [emptyOption('A'), emptyOption('B'), emptyOption('C'), emptyOption('D')],
     correctAnswer: 'A',
     explanation: '',
+    mediaUrl: '',
     points: 1,
     // metadata
     subject: 'Computer Science',
@@ -54,6 +55,7 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
   const [form, setForm] = useState(initialForm || defaultForm());
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [mediaUploading, setMediaUploading] = useState(false);
 
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -89,6 +91,40 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
 
   const removeTag = (t) => setField('tags', form.tags.filter(x => x !== t));
 
+  const uploadMedia = async (file) => {
+    if (!file) return;
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Only image files (jpg, png, gif, webp) are allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB.');
+      return;
+    }
+    setMediaUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setField('mediaUrl', data.data.url);
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+    } catch (e) {
+      alert('Upload failed: ' + e.message);
+    } finally {
+      setMediaUploading(false);
+    }
+  };
+
   /* Build API payload */
   const buildPayload = () => {
     if (form.type === 'mcq') {
@@ -99,6 +135,7 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
         options: optionsStr,
         correctAnswer: form.correctAnswer,
         explanation: form.explanation,
+        mediaUrl: form.mediaUrl || null,
         points: parseInt(form.points) || 1,
       };
     }
@@ -108,6 +145,7 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
       options: null,
       correctAnswer: form.correctAnswer,
       explanation: form.explanation,
+      mediaUrl: form.mediaUrl || null,
       points: parseInt(form.points) || 1,
     };
   };
@@ -208,11 +246,39 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
             </div>
 
             {/* Media drop zone */}
-            <div className="cq-media-zone">
-              <ImagePlay size={28} className="cq-media-zone__icon" />
-              <div className="cq-media-zone__title">Add Media or Equations</div>
-              <div className="cq-media-zone__sub">Drag and drop images, PDFs, or insert LaTeX equations</div>
-            </div>
+            {form.mediaUrl ? (
+              <div className="cq-media-preview">
+                <img src={form.mediaUrl} alt="Question media" className="cq-media-preview__img" />
+                <button
+                  type="button"
+                  className="cq-media-preview__remove"
+                  onClick={() => setField('mediaUrl', '')}
+                >
+                  <X size={14} /> Remove Image
+                </button>
+              </div>
+            ) : (
+              <label
+                className="cq-media-zone"
+                onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('is-dragover'); }}
+                onDragLeave={e => e.currentTarget.classList.remove('is-dragover')}
+                onDrop={e => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove('is-dragover');
+                  if (e.dataTransfer.files.length > 0) uploadMedia(e.dataTransfer.files[0]);
+                }}
+              >
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  className="cq-media-zone__input"
+                  onChange={e => { if (e.target.files.length > 0) uploadMedia(e.target.files[0]); }}
+                />
+                <ImagePlay size={28} className="cq-media-zone__icon" />
+                <div className="cq-media-zone__title">{mediaUploading ? 'Uploading...' : 'Add Image'}</div>
+                <div className="cq-media-zone__sub">Drag and drop or click to browse (jpg, png, gif, webp — max 5MB)</div>
+              </label>
+            )}
           </div>
 
           {/* Answer Options card */}
@@ -279,6 +345,11 @@ function QuestionForm({ bankId, bankTitle, editing, initialForm, onSave, onCance
             <div className="cq-card cq-preview">
               <div className="cq-card__title">Preview</div>
               <div className="cq-preview__stem">{form.questionText || <em>No question text yet.</em>}</div>
+              {form.mediaUrl && (
+                <div className="cq-preview__media">
+                  <img src={form.mediaUrl} alt="Question media" />
+                </div>
+              )}
               {form.type === 'mcq' && (
                 <div className="cq-preview__options">
                   {form.options.map((opt, i) => (
@@ -451,6 +522,7 @@ export default function QuestionListPage() {
       options: parsedOptions.length > 0 ? parsedOptions : [emptyOption('A'), emptyOption('B')],
       correctAnswer: q.correctAnswer,
       explanation: q.explanation || '',
+      mediaUrl: q.mediaUrl || '',
       points: q.points,
       subject: 'Computer Science',
       difficulty: q.points <= 2 ? 'Easy' : q.points <= 5 ? 'Medium' : 'Hard',
