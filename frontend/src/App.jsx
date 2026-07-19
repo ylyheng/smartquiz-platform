@@ -13,6 +13,7 @@ import QuizListPage from './pages/QuizListPage';
 import TakeQuizPage from './pages/TakeQuizPage';
 import QuizResultsPage from './pages/QuizResultsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import LecturerHelpPage from './pages/LecturerHelpPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function Navbar() {
@@ -99,15 +100,20 @@ function Layout() {
     location.pathname === '/quizzes' ||
     location.pathname === '/quizzes/create' ||
     location.pathname === '/analytics' ||
+    location.pathname === '/help' ||
     location.pathname.startsWith('/analytics/quiz/')
   );
+  const isStudentWorkspace = user?.role === 'student' && (
+    location.pathname === '/dashboard'
+  );
+  const hideGlobalLayout = isLecturerWorkspace || isStudentWorkspace;
   return (
     <>
-      {!isLecturerWorkspace && <Navbar />}
-      <main className={isHome ? 'main--home' : isLecturerWorkspace ? 'main--dashboard' : 'main--inner'}>
+      {!hideGlobalLayout && <Navbar />}
+      <main className={isHome ? 'main--home' : hideGlobalLayout ? 'main--dashboard' : 'main--inner'}>
         <Outlet />
       </main>
-      {!isLecturerWorkspace && <Footer />}
+      {!hideGlobalLayout && <Footer />}
     </>
   );
 }
@@ -130,6 +136,7 @@ export default function App() {
             <Route path="/results/:attemptId" element={<ProtectedRoute><QuizResultsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute roles={['lecturer']}><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/analytics/quiz/:quizId" element={<ProtectedRoute roles={['lecturer']}><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/help" element={<ProtectedRoute roles={['lecturer']}><LecturerHelpPage /></ProtectedRoute>} />
           </Route>
         </Routes>
       </AuthProvider>
