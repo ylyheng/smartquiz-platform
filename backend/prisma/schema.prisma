@@ -9,21 +9,23 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(191)
+  password  String   @db.VarChar(191)
+  role      String   @db.VarChar(20)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   quizzes  Quiz[]
   attempts Attempt[]
+
+  @@index([role])
 }
 
 model QuestionBank {
   id          Int      @id @default(autoincrement())
-  title       String
-  description String?
+  title       String   @db.VarChar(191)
+  description String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -33,25 +35,27 @@ model QuestionBank {
 model Question {
   id            Int      @id @default(autoincrement())
   bankId        Int
-  type          String
-  questionText  String
-  options       String?
-  correctAnswer String
-  explanation   String?
-  mediaUrl      String?
+  type          String   @db.VarChar(20)
+  questionText  String   @db.Text
+  options       String?  @db.Text
+  correctAnswer String   @db.VarChar(191)
+  explanation   String?  @db.Text
+  mediaUrl      String?  @db.VarChar(500)
   points        Int      @default(1)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  bank           QuestionBank     @relation(fields: [bankId], references: [id])
+  bank           QuestionBank    @relation(fields: [bankId], references: [id])
   quizQuestions  QuizQuestion[]
   attemptAnswers AttemptAnswer[]
+
+  @@index([bankId])
 }
 
 model Quiz {
   id          Int      @id @default(autoincrement())
-  title       String
-  description String?
+  title       String   @db.VarChar(191)
+  description String?  @db.Text
   lecturerId  Int
   timeLimit   Int
   shuffle     Boolean  @default(false)
@@ -59,9 +63,11 @@ model Quiz {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  lecturer     User           @relation(fields: [lecturerId], references: [id])
+  lecturer      User           @relation(fields: [lecturerId], references: [id])
   quizQuestions QuizQuestion[]
-  attempts     Attempt[]
+  attempts      Attempt[]
+
+  @@index([lecturerId])
 }
 
 model QuizQuestion {
@@ -72,32 +78,43 @@ model QuizQuestion {
 
   quiz     Quiz     @relation(fields: [quizId], references: [id])
   question Question @relation(fields: [questionId], references: [id])
+
+  @@index([quizId])
+  @@index([questionId])
 }
 
 model Attempt {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   quizId      Int
   studentId   Int
   score       Int?
   totalPoints Int?
-  startedAt   DateTime @default(now())
+  startedAt   DateTime  @default(now())
   submittedAt DateTime?
-  status      String   @default("in-progress")
+  status      String    @default("in-progress") @db.VarChar(20)
 
   quiz    Quiz            @relation(fields: [quizId], references: [id])
   student User            @relation(fields: [studentId], references: [id])
   answers AttemptAnswer[]
+
+  @@index([quizId])
+  @@index([studentId])
+  @@index([status])
+  @@index([quizId, studentId])
 }
 
 model AttemptAnswer {
-  id         Int  @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   attemptId  Int
   questionId Int
-  answer     String?
+  answer     String?  @db.VarChar(191)
   isCorrect  Boolean?
   score      Int?
-  feedback   String?
+  feedback   String?  @db.Text
 
   attempt  Attempt  @relation(fields: [attemptId], references: [id])
   question Question @relation(fields: [questionId], references: [id])
+
+  @@index([attemptId])
+  @@index([questionId])
 }

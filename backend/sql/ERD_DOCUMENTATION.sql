@@ -1,0 +1,130 @@
+-- ============================================================
+-- SmartQuiz Platform - Entity Relationship Diagram (ERD)
+-- ============================================================
+--
+-- ERD Text Representation (Chen Notation):
+--
+-- +----------+       +--------------+       +----------+
+-- |   User   |1    * |    Quiz      |*    * | Question |
+-- |----------|--------|--------------|--------|----------|
+-- | id (PK)  |        | id (PK)      |        | id (PK)  |
+-- | name     |        | title        |        | bankId   |--+
+-- | email    |        | description  |        | type     |  |
+-- | password |        | lecturerId(FK)|       | questionText  |
+-- | role     |        | timeLimit    |        | options  |  |
+-- +----------+        | shuffle      |        | correctAnswer |
+--      |              | showResults  |        | explanation |
+--      |              +--------------+        | mediaUrl |  |
+--      |                    |                 | points   |  |
+--      |                    | *               +----------+  |
+--      |                    |                 /        |    |
+--      |                    |  +-------------+         |    |
+--      |                    |  | QuizQuestion|         |    |
+--      |                    |  |-------------|         |    |
+--      |                    |  | id (PK)     |         |    |
+--      |                    |  | quizId (FK) |         |    |
+--      |                    |  | questionId  |         |    |
+--      |                    |  | order       |         |    |
+--      |                    |  +-------------+         |    |
+--      |                    |         |                |    |
+--      |              +-----+---------+-----+          |    |
+--      |              |         Attempt     |          |    |
+--      |              |---------------------|          |    |
+--      |1             | id (PK)             |          |    |
+--      +---  *        | quizId (FK)         |          |    |
+--                     | studentId (FK)      |          |    |
+--                     | score               |          |    |
+--                     | totalPoints         |          |    |
+--                     | startedAt           |          |    |
+--                     | submittedAt         |          |    |
+--                     | status              |          |    |
+--                     +---------------------+          |    |
+--                             | *                       |    |
+--                             |                         |    |
+--                     +-------+-----------+             |    |
+--                     |   AttemptAnswer   |             |    |
+--                     |-------------------|             |    |
+--                     | id (PK)           |             |    |
+--                     | attemptId (FK)    |             |    |
+--                     | questionId (FK) --+-------------+    |
+--                     | answer            |                  |
+--                     | isCorrect         |                  |
+--                     | score             |                  |
+--                     | feedback          |                  |
+--                     +-------------------+                  |
+--                                                            |
+--                     +-------------------+                  |
+--                     |  QuestionBank     |                  |
+--                     |-------------------|                  |
+--                     | id (PK)           |                  |
+--                     | title             |                  |
+--                     | description       |                  |
+--                     | createdAt         |                  |
+--                     | updatedAt         |                  |
+--                     +-------------------+                  |
+--                             | 1                            |
+--                             +------------------------------+
+--
+-- ============================================================
+-- RELATIONSHIP SUMMARY
+-- ============================================================
+--
+-- 1. User (lecturer)  --1:N-->  Quiz
+--    A lecturer creates many quizzes. A quiz belongs to one lecturer.
+--    FK: Quiz.lecturerId -> User.id
+--
+-- 2. User (student)  --1:N-->  Attempt
+--    A student makes many attempts. An attempt belongs to one student.
+--    FK: Attempt.studentId -> User.id
+--
+-- 3. QuestionBank  --1:N-->  Question
+--    A bank contains many questions. A question belongs to one bank.
+--    FK: Question.bankId -> QuestionBank.id
+--
+-- 4. Quiz  --M:N-->  Question (via QuizQuestion junction table)
+--    A quiz contains many questions. A question can appear in many quizzes.
+--    FK: QuizQuestion.quizId -> Quiz.id
+--    FK: QuizQuestion.questionId -> Question.id
+--
+-- 5. Quiz  --1:N-->  Attempt
+--    A quiz has many attempts. An attempt is for one quiz.
+--    FK: Attempt.quizId -> Quiz.id
+--
+-- 6. Attempt  --1:N-->  AttemptAnswer
+--    An attempt has many answers. An answer belongs to one attempt.
+--    FK: AttemptAnswer.attemptId -> Attempt.id
+--
+-- 7. Question  --1:N-->  AttemptAnswer
+--    A question has many answers across attempts. An answer is for one question.
+--    FK: AttemptAnswer.questionId -> Question.id
+--
+-- ============================================================
+-- CONSTRAINTS SUMMARY
+-- ============================================================
+--
+-- Primary Keys:    All tables have auto-incrementing integer PKs
+-- Foreign Keys:    8 FK relationships (all RESTRICT on delete, CASCADE on update)
+-- Unique:          User.email is unique
+-- Defaults:        Question.points=1, Quiz.shuffle=false, Quiz.showResults=true,
+--                  Attempt.status='in-progress', timestamps auto-populated
+-- Indexes:         FK columns indexed, composite index on Attempt(quizId, studentId),
+--                  index on Attempt.status for filtered queries
+--
+-- ============================================================
+-- USER ROLES
+-- ============================================================
+--
+-- lecturer:  Can create/manage question banks, questions, quizzes.
+--            Can view analytics and student performance.
+--            Cannot take quizzes.
+--
+-- student:   Can view and take quizzes.
+--            Can view own results and performance history.
+--            Cannot create questions or quizzes.
+--
+-- ============================================================
+-- AUTHENTICATION
+-- ============================================================
+--
+-- JWT-based authentication with bcrypt password hashing (10 salt rounds).
+-- Role encoded in JWT token. Middleware enforces role-based route access.
