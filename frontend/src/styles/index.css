@@ -2933,6 +2933,76 @@ button.student-nav__item {
    LECTURER HELP CENTER PAGE
    ============================================================ */
 
+/* Feature Guide */
+.help-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.help-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.help-feature-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.help-feature-card:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.06);
+}
+
+.help-feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.help-feature-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.help-feature-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.help-feature-info p {
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.help-feature-info strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Lecturer Help Center Page */
+
 .lecturer-help-grid {
   display: grid;
   grid-template-columns: 1fr 380px;

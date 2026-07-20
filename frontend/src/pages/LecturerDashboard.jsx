@@ -1608,7 +1608,62 @@ export default function LecturerDashboard() {
               {activeTab === 'help' && (
                 <div className="student-tab-help">
                   <h1 className="student-title">Help Center</h1>
-                  <div className="student-section-header"><h2>Frequently Asked Questions</h2></div>
+                  <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '-0.75rem', marginBottom: '1.5rem' }}>
+                    Learn how to use each feature of the Lecturer Dashboard.
+                  </p>
+
+                  <div className="help-section-label">FEATURE GUIDE</div>
+                  <div className="help-features">
+                    <div className="help-feature-card">
+                      <div className="help-feature-icon" style={{ background: '#ede9fe', color: '#4f46e5' }}><LayoutDashboard size={20} /></div>
+                      <div className="help-feature-info">
+                        <h4>Dashboard Overview</h4>
+                        <p>The main landing page shows your key metrics at a glance: total quizzes, total students, average score, and active quizzes. The "Recent Assessments" panel lists your latest quizzes with participation progress bars, and the "Platform Overview" card summarizes total submissions across all quizzes.</p>
+                      </div>
+                    </div>
+
+                    <div className="help-feature-card">
+                      <div className="help-feature-icon" style={{ background: '#dbeafe', color: '#1d4ed8' }}><BookOpen size={20} /></div>
+                      <div className="help-feature-info">
+                        <h4>Question Bank Management</h4>
+                        <p>Create and organize question banks to reuse across multiple quizzes. Click <strong>"Create New Bank"</strong> to start a new bank. Open a bank to view, add, edit, or delete questions. Each question supports <strong>Multiple Choice (MCQ)</strong> or <strong>True/False</strong> types, with optional explanations, image media, point values, and tags.</p>
+                      </div>
+                    </div>
+
+                    <div className="help-feature-card">
+                      <div className="help-feature-icon" style={{ background: '#dcfce7', color: '#16a34a' }}><Plus size={20} /></div>
+                      <div className="help-feature-info">
+                        <h4>Creating Questions</h4>
+                        <p>Click <strong>"Add Question"</strong> inside a bank to open the question editor. Choose between MCQ (2-8 options) or True/False. For MCQ, type each option and select the correct answer using the radio button. You can add an optional <strong>explanation</strong> that students will see after submitting. Upload images up to 5MB and set point values in the metadata sidebar.</p>
+                      </div>
+                    </div>
+
+                    <div className="help-feature-card">
+                      <div className="help-feature-icon" style={{ background: '#fef3c7', color: '#d97706' }}><ClipboardList size={20} /></div>
+                      <div className="help-feature-info">
+                        <h4>Creating Quizzes</h4>
+                        <p>Navigate to <strong>"Create Quiz"</strong> in the sidebar. Enter a title and description, set a time limit (in minutes), and configure options like shuffling questions and showing instant results. Select a question bank from the dropdown, then check the questions you want to include. The sidebar shows a live summary of selected count and total marks. Click <strong>"Publish Quiz"</strong> to make it available to students, or <strong>"Save as Draft"</strong> to edit later.</p>
+                      </div>
+                    </div>
+
+                    <div className="help-feature-card">
+                      <div className="help-feature-icon" style={{ background: '#fce7f3', color: '#db2777' }}><BarChart3 size={20} /></div>
+                      <div className="help-feature-info">
+                        <h4>Analytics</h4>
+                        <p>Select a quiz from the dropdown to view detailed analytics. The stat cards show average score, completion rate, time limit, and difficulty. The <strong>"Student Performance"</strong> table lists each student's score, percentage with a color-coded bar, and pass/fail status. The <strong>"Question Breakdown"</strong> table shows the percentage of students who answered each question correctly, helping you identify weak areas.</p>
+                      </div>
+                    </div>
+
+                    <div className="help-feature-card">
+                      <div className="help-feature-icon" style={{ background: '#f1f5f9', color: '#475569' }}><Settings size={20} /></div>
+                      <div className="help-feature-info">
+                        <h4>Settings</h4>
+                        <p>Access account settings from the sidebar. View your profile details (name, email, role) and change your password by entering your current password and confirming a new one.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="help-section-label" style={{ marginTop: '2rem' }}>FREQUENTLY ASKED QUESTIONS</div>
                   <div className="help-grid">
                     <div className="help-faqs">
                       {FAQS.map((item, idx) => (

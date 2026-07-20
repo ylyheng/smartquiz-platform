@@ -372,10 +372,62 @@ export default function StudentDashboard() {
           {activeTab === 'help' && (
             <div className="student-tab-help">
               <h1 className="student-title">Help Center</h1>
-              <div className="student-section-header">
-                <h2>Frequently Asked Questions</h2>
+              <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '-0.75rem', marginBottom: '1.5rem' }}>
+                Learn how to use each feature of the Student Dashboard.
+              </p>
+
+              <div className="help-section-label">FEATURE GUIDE</div>
+              <div className="help-features">
+                <div className="help-feature-card">
+                  <div className="help-feature-icon" style={{ background: '#ede9fe', color: '#4f46e5' }}><LayoutDashboard size={20} /></div>
+                  <div className="help-feature-info">
+                    <h4>Dashboard Overview</h4>
+                    <p>The main landing page displays your key academic metrics: overall average score, total quizzes taken, and quizzes passed. The "Recent Results" panel shows your latest quiz attempts with scores and dates, while the "Performance Summary" card highlights your strongest quiz and completion rate.</p>
+                  </div>
+                </div>
+
+                <div className="help-feature-card">
+                  <div className="help-feature-icon" style={{ background: '#dcfce7', color: '#16a34a' }}><ClipboardList size={20} /></div>
+                  <div className="help-feature-info">
+                    <h4>Available Quizzes</h4>
+                    <p>Browse quizzes published by your lecturer on the dashboard. Click <strong>"Start Quiz"</strong> to begin a quiz session. Each quiz shows the number of questions and time limit. Once started, a countdown timer begins — the timer cannot be paused, so make sure you have enough time before starting.</p>
+                  </div>
+                </div>
+
+                <div className="help-feature-card">
+                  <div className="help-feature-icon" style={{ background: '#fef3c7', color: '#d97706' }}><Clock size={20} /></div>
+                  <div className="help-feature-info">
+                    <h4>Taking a Quiz</h4>
+                    <p>Answer questions one at a time using the question navigation sidebar on the left. Select your answer by clicking the option, then click <strong>"Next"</strong> to move forward or <strong>"Previous"</strong> to go back. The progress bar at the top tracks how many questions you've answered. When ready, click <strong>"Submit Quiz"</strong> on the last question. A confirmation dialog will show how many questions are unanswered before final submission.</p>
+                  </div>
+                </div>
+
+                <div className="help-feature-card">
+                  <div className="help-feature-icon" style={{ background: '#dbeafe', color: '#1d4ed8' }}><Award size={20} /></div>
+                  <div className="help-feature-info">
+                    <h4>Quiz Results</h4>
+                    <p>After submitting, you are redirected to the results page showing your score, percentage, and a pass/fail status. If the lecturer enabled explanations, you will see the correct answer and explanation for each question, helping you understand what you got wrong and why.</p>
+                  </div>
+                </div>
+
+                <div className="help-feature-card">
+                  <div className="help-feature-icon" style={{ background: '#fce7f3', color: '#db2777' }}><TrendingUp size={20} /></div>
+                  <div className="help-feature-info">
+                    <h4>Performance Tracking</h4>
+                    <p>Your dashboard tracks performance across all quiz attempts. The average score is calculated from all your submitted attempts. Visit the "Results" tab to review past attempts, see which quizzes you passed, and compare scores over time.</p>
+                  </div>
+                </div>
+
+                <div className="help-feature-card">
+                  <div className="help-feature-icon" style={{ background: '#f1f5f9', color: '#475569' }}><Settings size={20} /></div>
+                  <div className="help-feature-info">
+                    <h4>Settings</h4>
+                    <p>Access account settings from the sidebar. View your profile details (name, email, role) and change your password by entering your current password and confirming a new one.</p>
+                  </div>
+                </div>
               </div>
 
+              <div className="help-section-label" style={{ marginTop: '2rem' }}>FREQUENTLY ASKED QUESTIONS</div>
               <div className="help-grid">
                 <div className="help-faqs">
                   <div className="faq-item">
@@ -399,7 +451,6 @@ export default function StudentDashboard() {
                 <div className="help-contact-card">
                   <h3>Submit a Support Ticket</h3>
                   <p className="help-contact-sub">Have a technical issue or question about a quiz? Send our support team a message.</p>
-                  
                   <form onSubmit={(e) => {
                     e.preventDefault();
                     alert(`Support ticket submitted!\nSubject: ${supportForm.subject}\nOur team will contact you shortly.`);
@@ -407,19 +458,19 @@ export default function StudentDashboard() {
                   }} className="help-form">
                     <div className="form-group">
                       <label>Subject</label>
-                      <input 
-                        type="text" 
-                        required 
-                        placeholder="e.g. Quiz timer issue" 
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Quiz timer issue"
                         value={supportForm.subject}
                         onChange={(e) => setSupportForm({...supportForm, subject: e.target.value})}
                       />
                     </div>
                     <div className="form-group">
                       <label>Message Description</label>
-                      <textarea 
-                        rows="4" 
-                        required 
+                      <textarea
+                        rows="4"
+                        required
                         placeholder="Describe your issue in detail..."
                         value={supportForm.message}
                         onChange={(e) => setSupportForm({...supportForm, message: e.target.value})}
