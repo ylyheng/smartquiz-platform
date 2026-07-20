@@ -46,6 +46,7 @@ function Navbar() {
                   </NavLink>
                 </>
               )}
+              <span className="site-header__divider" />
               <div className="site-header__avatar">{user.name.charAt(0).toUpperCase()}</div>
               <button className="site-header__logout" onClick={logout}>Logout</button>
             </>
@@ -102,7 +103,9 @@ function Layout() {
     location.pathname === '/help'
   );
   const isStudentWorkspace = user?.role === 'student' && (
-    location.pathname === '/dashboard'
+    location.pathname === '/dashboard' ||
+    location.pathname.startsWith('/take-quiz') ||
+    location.pathname.startsWith('/results')
   );
   const hideGlobalLayout = isLecturerWorkspace || isStudentWorkspace;
   return (

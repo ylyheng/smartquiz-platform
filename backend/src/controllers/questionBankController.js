@@ -43,7 +43,18 @@ export const update = async (req, res, next) => {
 
 export const remove = async (req, res, next) => {
   try {
-    await prisma.questionBank.delete({ where: { id: parseInt(req.params.id) } });
+    const id = parseInt(req.params.id);
+    const questionIds = (await prisma.question.findMany({
+      where: { bankId: id },
+      select: { id: true },
+    })).map(q => q.id);
+
+    await prisma.$transaction([
+      prisma.attemptAnswer.deleteMany({ where: { questionId: { in: questionIds } } }),
+      prisma.quizQuestion.deleteMany({ where: { questionId: { in: questionIds } } }),
+      prisma.question.deleteMany({ where: { bankId: id } }),
+      prisma.questionBank.delete({ where: { id } }),
+    ]);
     res.json({ success: true, message: 'Bank deleted' });
   } catch (err) { next(err); }
 };

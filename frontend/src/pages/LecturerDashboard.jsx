@@ -1111,6 +1111,14 @@ export default function LecturerDashboard() {
                                     <Plus size={15} /> Add another choice
                                   </button>
                                 )}
+                                <label className="cq-label" style={{ marginTop: '1rem' }}>Explanation (optional)</label>
+                                <textarea
+                                  className="cq-input"
+                                  value={questionForm.explanation}
+                                  onChange={e => setQuestionField('explanation', e.target.value)}
+                                  placeholder="Why is this the correct answer?"
+                                  rows={3}
+                                />
                               </>
                             ) : (
                               <div className="cq-field">

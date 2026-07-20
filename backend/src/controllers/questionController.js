@@ -39,7 +39,12 @@ export const update = async (req, res, next) => {
 
 export const remove = async (req, res, next) => {
   try {
-    await prisma.question.delete({ where: { id: parseInt(req.params.id) } });
+    const id = parseInt(req.params.id);
+    await prisma.$transaction([
+      prisma.attemptAnswer.deleteMany({ where: { questionId: id } }),
+      prisma.quizQuestion.deleteMany({ where: { questionId: id } }),
+      prisma.question.delete({ where: { id } }),
+    ]);
     res.json({ success: true, message: 'Question deleted' });
   } catch (err) { next(err); }
 };

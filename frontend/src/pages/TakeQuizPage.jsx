@@ -12,6 +12,8 @@ export default function TakeQuizPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState(0);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const fetchQuiz = useCallback(async () => {
     try {
@@ -26,14 +28,13 @@ export default function TakeQuizPage() {
       const att = res.data.attempt;
       setAttempt(att);
       setTimeLeft(res.data.quizTimeLimit * 60);
-
       const initial = {};
       att.answers.forEach(a => {
         if (a.answer) initial[a.questionId] = a.answer;
       });
       setAnswers(initial);
-    } catch (e) { alert(e.message) }
-    finally { setLoading(false) }
+    } catch (e) { alert(e.message); }
+    finally { setLoading(false); }
   }, [quizId]);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function TakeQuizPage() {
 
   useEffect(() => {
     if (timeLeft === null || submitted) return;
-    if (timeLeft <= 0) { handleSubmit(); return }
+    if (timeLeft <= 0) { handleSubmit(true); return; }
     const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft, submitted]);
@@ -54,6 +55,7 @@ export default function TakeQuizPage() {
 
   const handleSubmit = async (auto = false) => {
     if (submitting) return;
+    setShowConfirm(false);
     setSubmitting(true);
     try {
       const res = await api.post(`/attempts/${attempt.id}/submit`, { answers });
@@ -69,83 +71,163 @@ export default function TakeQuizPage() {
   const formatTime = (sec) => {
     const m = Math.floor(sec / 60);
     const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (loading) return <div className="loading-screen">Preparing quiz...</div>;
+  const getAnsweredCount = () => Object.keys(answers).length;
+  const getProgress = () => attempt ? (getAnsweredCount() / attempt.answers.length) * 100 : 0;
+
+  if (loading) {
+    return (
+      <div className="quiz-loading">
+        <div className="quiz-loading__spinner" />
+        <p>Preparing your quiz...</p>
+      </div>
+    );
+  }
+
   if (!attempt || !quiz) return null;
 
+  const currentAnswer = attempt.answers[activeQuestion];
+  const answered = getAnsweredCount();
+  const total = attempt.answers.length;
+
   return (
-    <div className="page-container take-quiz">
-      <div className="quiz-header-bar">
-        <div>
-          <h1>{quiz.title}</h1>
-          <p>{quiz.description}</p>
+    <div className="tq">
+      {/* Header */}
+      <header className="tq-header">
+        <div className="tq-header__left">
+          <button className="tq-back" onClick={() => navigate('/dashboard')}>
+            &larr; Exit
+          </button>
+          <div className="tq-header__title">
+            <h1>{quiz.title}</h1>
+            <span className="tq-header__count">{answered}/{total} answered</span>
+          </div>
         </div>
-        <div className="quiz-timer">
-          <span className={`timer-display ${timeLeft < 120 ? 'timer-warning' : ''}`}>
-            {formatTime(timeLeft)}
+        <div className="tq-header__timer">
+          <span className={timeLeft < 120 ? 'tq-timer tq-timer--danger' : 'tq-timer'}>
+            Time: {formatTime(timeLeft)}
           </span>
-          {timeLeft < 120 && <span className="timer-alert">Time is running out!</span>}
+          {timeLeft < 120 && <span className="tq-timer-warn">Running out!</span>}
         </div>
+      </header>
+
+      {/* Progress Bar */}
+      <div className="tq-progress">
+        <div className="tq-progress__bar" style={{ width: `${getProgress()}%` }} />
       </div>
 
-      <form onSubmit={e => { e.preventDefault(); handleSubmit() }}>
-        {attempt.answers.map((aa, i) => (
-          <div key={aa.id} className="card question-block">
-            <div className="q-block-header">
-              <span className="badge">Q{i + 1}</span>
-              <span className="badge badge-points">{aa.question.points} pt</span>
-              <span className="badge badge-type">{aa.question.type === 'mcq' ? 'MCQ' : 'Short Answer'}</span>
-            </div>
-            <p className="q-block-text">{aa.question.questionText}</p>
+      <div className="tq-body">
+        {/* Question Nav */}
+        <aside className="tq-nav">
+          <h3>Questions</h3>
+          <div className="tq-nav__grid">
+            {attempt.answers.map((aa, i) => (
+              <button
+                key={aa.id}
+                className={`tq-nav__btn ${answers[aa.questionId] ? 'tq-nav__btn--done' : ''} ${i === activeQuestion ? 'tq-nav__btn--active' : ''}`}
+                onClick={() => setActiveQuestion(i)}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </aside>
 
-            {aa.question.type === 'mcq' && aa.question.options && (
-              <div className="mcq-options">
-                {aa.question.options.split('\n').filter(Boolean).map((opt, oi) => {
-                  const letter = opt.trim().charAt(0);
-                  return (
-                    <label key={oi} className={`mcq-option ${answers[aa.questionId] === letter ? 'selected' : ''}`}>
+        {/* Question */}
+        <main className="tq-content">
+          {currentAnswer && (
+            <div className="tq-question">
+              <div className="tq-question__head">
+                <span className="tq-question__num">Question {activeQuestion + 1} of {total}</span>
+                <span className="tq-question__pts">{currentAnswer.question.points} pt{currentAnswer.question.points !== 1 ? 's' : ''}</span>
+              </div>
+
+              <p className="tq-question__text">{currentAnswer.question.questionText}</p>
+
+              {currentAnswer.question.type === 'mcq' && currentAnswer.question.options && (
+                <div className="tq-options">
+                  {currentAnswer.question.options.split('\n').filter(Boolean).map((opt, oi) => {
+                    const letter = opt.trim().charAt(0);
+                    const isSelected = answers[currentAnswer.questionId] === letter;
+                    return (
+                      <label key={oi} className={`tq-opt ${isSelected ? 'tq-opt--selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name={`q_${currentAnswer.questionId}`}
+                          value={letter}
+                          checked={isSelected}
+                          onChange={() => handleAnswerChange(currentAnswer.questionId, letter)}
+                        />
+                        <span className="tq-opt__letter">{letter}</span>
+                        <span className="tq-opt__text">{opt.trim().substring(2).trim()}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              {currentAnswer.question.type === 'true-false' && (
+                <div className="tq-tf">
+                  {['True', 'False'].map(val => (
+                    <label key={val} className={`tq-tf__opt ${answers[currentAnswer.questionId] === val ? 'tq-tf__opt--selected' : ''}`}>
                       <input
                         type="radio"
-                        name={`q_${aa.questionId}`}
-                        value={letter}
-                        checked={answers[aa.questionId] === letter}
-                        onChange={() => handleAnswerChange(aa.questionId, letter)}
+                        name={`q_${currentAnswer.questionId}`}
+                        value={val}
+                        checked={answers[currentAnswer.questionId] === val}
+                        onChange={() => handleAnswerChange(currentAnswer.questionId, val)}
                       />
-                      <span>{opt.trim()}</span>
+                      <span>{val}</span>
                     </label>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
-            {aa.question.type === 'true-false' && (
-              <div className="tf-options">
-                {['True', 'False'].map(val => (
-                  <label key={val} className={`tf-option${answers[aa.questionId] === val ? ' is-selected' : ''}`}>
-                    <input
-                      type="radio"
-                      name={`q_${aa.questionId}`}
-                      value={val}
-                      checked={answers[aa.questionId] === val}
-                      onChange={() => handleAnswerChange(aa.questionId, val)}
-                    />
-                    <span>{val}</span>
-                  </label>
-                ))}
-              </div>
+          {/* Nav Buttons */}
+          <div className="tq-actions">
+            <button
+              className="tq-btn tq-btn--outline"
+              disabled={activeQuestion === 0}
+              onClick={() => setActiveQuestion(p => p - 1)}
+            >
+              Previous
+            </button>
+            {activeQuestion < total - 1 ? (
+              <button className="tq-btn tq-btn--primary" onClick={() => setActiveQuestion(p => p + 1)}>
+                Next
+              </button>
+            ) : (
+              <button className="tq-btn tq-btn--submit" onClick={() => setShowConfirm(true)} disabled={submitting}>
+                Submit Quiz
+              </button>
             )}
           </div>
-        ))}
+        </main>
+      </div>
 
-        <div className="quiz-submit-bar">
-          <span>{attempt.answers.length} questions</span>
-          <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit Quiz'}
-          </button>
+      {showConfirm && (
+        <div className="tq-confirm-overlay" onClick={() => setShowConfirm(false)}>
+          <div className="tq-confirm" onClick={e => e.stopPropagation()}>
+            <h3>Submit Quiz?</h3>
+            <p>
+              You answered <strong>{getAnsweredCount()} of {total}</strong> questions.
+              {getAnsweredCount() < total && (
+                <span className="tq-confirm__warn"> {total - getAnsweredCount()} unanswered.</span>
+              )}
+            </p>
+            <div className="tq-confirm__btns">
+              <button className="tq-btn tq-btn--outline" onClick={() => setShowConfirm(false)}>Go Back</button>
+              <button className="tq-btn tq-btn--submit" onClick={() => handleSubmit()} disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit Now'}
+              </button>
+            </div>
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 }
