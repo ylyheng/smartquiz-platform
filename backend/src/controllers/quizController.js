@@ -115,7 +115,18 @@ export const remove = async (req, res, next) => {
     const quiz = await prisma.quiz.findUnique({ where: { id } });
     if (!quiz) return next(new ApiError(404, 'Quiz not found'));
     if (quiz.lecturerId !== req.user.id) return next(new ApiError(403, 'Not your quiz'));
-    await prisma.quiz.delete({ where: { id } });
+
+    const attemptIds = (await prisma.attempt.findMany({
+      where: { quizId: id },
+      select: { id: true },
+    })).map(a => a.id);
+
+    await prisma.$transaction([
+      prisma.attemptAnswer.deleteMany({ where: { attemptId: { in: attemptIds } } }),
+      prisma.attempt.deleteMany({ where: { quizId: id } }),
+      prisma.quizQuestion.deleteMany({ where: { quizId: id } }),
+      prisma.quiz.delete({ where: { id } }),
+    ]);
     res.json({ success: true, message: 'Quiz deleted' });
   } catch (err) { next(err); }
 };

@@ -304,6 +304,17 @@ export default function LecturerDashboard() {
     }
   };
 
+  const handleDeleteQuiz = async (e, id) => {
+    e.stopPropagation();
+    if (!confirm('Delete this quiz and all student attempts?')) return;
+    try {
+      await api.delete(`/quizzes/${id}`);
+      loadInitialData();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
   const selectBank = (id) => {
     navigate(`/banks/${id}`);
   };
@@ -760,9 +771,14 @@ export default function LecturerDashboard() {
                                   </div>
                                 </div>
                               </div>
-                              <button onClick={() => navigate(`/analytics/quiz/${quiz.id}`)} className="student-start-btn" style={{ flexShrink: 0 }}>
-                                <Eye size={14} style={{ marginRight: 4 }} />Analytics
-                              </button>
+                              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                <button onClick={() => navigate(`/analytics/quiz/${quiz.id}`)} className="student-start-btn">
+                                  <Eye size={14} style={{ marginRight: 4 }} />Analytics
+                                </button>
+                                <button onClick={(e) => handleDeleteQuiz(e, quiz.id)} className="qbl-action-btn qbl-action-btn--danger" title="Delete Quiz">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
