@@ -12,6 +12,7 @@ const router = Router();
  *   post:
  *     tags: [Auth]
  *     summary: Register a new user
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -64,6 +65,7 @@ router.post('/register', validate(registerSchema), register);
  *   post:
  *     tags: [Auth]
  *     summary: Login with email and password
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
