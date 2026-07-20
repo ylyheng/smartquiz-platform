@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.js';
 import routes from './routes/index.js';
 import errorHandler from './middleware/errorHandler.js';
 
@@ -19,6 +21,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'SmartQuiz API Docs',
+  customCss: '.swagger-ui .topbar { display: none }',
+}));
 
 app.use('/api', routes);
 
